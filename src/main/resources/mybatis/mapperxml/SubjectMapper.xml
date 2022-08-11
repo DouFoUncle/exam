@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.commons.mapper.SubjectMapper">
+  <resultMap id="BaseResultMap" type="com.project.commons.model.Subject">
+    <!--@mbg.generated-->
+    <!--@Table subject-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="course_id" jdbcType="VARCHAR" property="courseId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="option_one" jdbcType="VARCHAR" property="optionOne" />
+    <result column="option_two" jdbcType="VARCHAR" property="optionTwo" />
+    <result column="option_three" jdbcType="VARCHAR" property="optionThree" />
+    <result column="option_four" jdbcType="VARCHAR" property="optionFour" />
+    <result column="result" jdbcType="VARCHAR" property="result" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <association property="course" javaType="com.project.commons.model.Course">
+      <id column="cId" jdbcType="INTEGER" property="id" />
+      <result column="course_name" jdbcType="VARCHAR" property="courseName" />
+      <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    s.id, s.course_id, s.title, s.option_one, s.option_two, s.option_three, s.option_four, s.`result`,
+    s.`type`, s.category, s.score
+  </sql>
+
+  <select id="getListByPage" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />, c.id cId, course_name, create_date
+    FROM subject s
+    INNER JOIN course c on s.course_id = c.id
+    WHERE s.del_flag = '0'
+      <if test="subject.title != null and subject.title != ''">
+        AND s.title LIKE CONCAT('%', #{subject.title}, '%')
+      </if>
+      <if test="subject.course != null and subject.course.courseName != null and subject.course.courseName != ''">
+        AND c.course_name LIKE CONCAT('%', #{subject.course.courseName}, '%')
+      </if>
+    LIMIT #{page}, #{limit}
+  </select>
+
+  <select id="getDataCount" resultType="java.lang.Long">
+    SELECT COUNT(1)
+    FROM subject s
+    INNER JOIN course c on s.course_id = c.id
+    WHERE s.del_flag = '0'
+      <if test="subject.title != null and subject.title != ''">
+        AND s.title LIKE CONCAT('%', #{subject.title}, '%')
+      </if>
+      <if test="subject.course != null and subject.course.courseName != null and subject.course.courseName != ''">
+        AND c.course_name LIKE CONCAT('%', #{subject.course.courseName}, '%')
+      </if>
+  </select>
+
+  <select id="getListByPageTwo" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />, c.id cId, course_name, create_date
+    FROM test_paper_subject_real tpsr
+    INNER JOIN subject s on s.id = tpsr.subject_id
+    INNER JOIN course c on s.course_id = c.id
+    WHERE s.del_flag = '0'
+    <if test="item.subjectTitle != null and item.subjectTitle != ''">
+      AND s.title LIKE CONCAT('%', #{item.subjectTitle}, '%')
+    </if>
+    <if test="item.testPaperId != null and item.testPaperId != ''">
+      AND tpsr.test_paper_id = #{item.testPaperId}
+    </if>
+    LIMIT #{page}, #{limit}
+  </select>
+
+  <select id="getDataCountTwo" resultType="long">
+    SELECT COUNT(1)
+    FROM test_paper_subject_real tpsr
+    INNER JOIN subject s on s.id = tpsr.subject_id
+    INNER JOIN course c on s.course_id = c.id
+    WHERE s.del_flag = '0'
+    <if test="item.subjectTitle != null and item.subjectTitle != ''">
+      AND s.title LIKE CONCAT('%', #{item.subjectTitle}, '%')
+    </if>
+    <if test="item.testPaperId != null and item.testPaperId != ''">
+      AND tpsr.test_paper_id = #{item.testPaperId}
+    </if>
+  </select>
+</mapper>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+        .layui-form-checkbox {
+            margin-top: 10px;
+        }
+        .layui-form-item .layui-input-inline {
+            width: 175px;
+        }
+        .layui-form-item .layui-input-inline.subjectInput {
+            width: 110px !important;
+        }
+        .subjectInput .layui-input {
+            width: 110px !important;
+        }
+    </style>
+</head>
+<body class="pear-container">
+<div style="background-color: #FFF; padding:15px;box-sizing: border-box">
+    <div style="height: 370px; overflow-y: auto; box-sizing: border-box">
+        <form action="javascript:;" class="layui-form" id="form">
+            <div class="layui-form-item" th:each="item, state : ${courseList}">
+                <input type="hidden" th:value="${item.id}" th:name="${'autoTestPaperInfoList[' + state.index + '].courseId'}">
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <input type="text" th:name="${'autoTestPaperInfoList[' + state.index + '].courseName'}"
+                               autocomplete="off" readonly
+                               class="layui-input layui-disabled" th:value="${item.courseName}">
+                    </div>
+                </div>
+                <div class="layui-inline subjectInput">
+                    <div class="layui-input-inline subjectInput">
+                        <input type="number" th:name="${'autoTestPaperInfoList[' + state.index + '].selectCount'}"
+                               autocomplete="off" class="layui-input" placeholder="单选题数量"
+                               onchange="changeMethod(this)" min="0">
+                    </div>
+                </div>
+                <div class="layui-inline subjectInput">
+                    <div class="layui-input-inline subjectInput">
+                        <input type="number" th:name="${'autoTestPaperInfoList[' + state.index + '].selectsCount'}"
+                               autocomplete="off" class="layui-input" placeholder="多选题数量"
+                               onchange="changeMethod(this)" min="0">
+                    </div>
+                </div>
+                <div class="layui-inline subjectInput">
+                    <div class="layui-input-inline subjectInput">
+                        <input type="number" th:name="${'autoTestPaperInfoList[' + state.index + '].judgeCount'}"
+                               autocomplete="off" class="layui-input" placeholder="判断题数量"
+                               onchange="changeMethod(this)" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="bottom">
+                <!-- 保存考试基本信息 -->
+                <input type="hidden" name="title" th:value="${obj.title}">
+                <input type="hidden" name="type" th:value="${obj.type}">
+                <input type="hidden" name="startDate" th:value="${obj.startDate}">
+                <input type="hidden" name="endDate" th:value="${obj.endDate}">
+                <input type="hidden" name="testTime" th:value="${obj.testTime}">
+                <div class="button-container">
+                    <button type="button" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                        <i class="layui-icon layui-icon-ok"></i>
+                        生成试卷
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form','jquery', 'tree', 'layer'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+    let tree = layui.tree;
+    let layer = layui.layer;
+
+    /**
+     * 输入框事件
+     * @param dom
+     */
+    window.changeMethod = (dom) => {
+        // 取出当前输入的值
+        let num = $(dom).val();
+        if(num < 0) {
+            layer.msg("最小输入0！", {icon: 7, shade: .2, time: 1300})
+            $(dom).val("0");
+            return;
+        }
+    }
+
+    form.on('submit(subBtn)', function(data){
+        let formArr = $("#form").serializeArray();
+        let flag = false;
+        $.each(formArr, function(i, field){
+            if((field.name + "").indexOf("selectCount") != -1
+                || (field.name + "").indexOf("selectsCount") != -1
+                || (field.name + "").indexOf("judgeCount") != -1) {
+                if(!field.value) {
+                    flag = true
+                }
+            }
+        });
+        if(flag) {
+            layer.msg("请认真填写数量！", {icon: 7, shade: .2, time: 1300})
+            return;
+        }
+        layer.load()
+        let paramData = data.field;
+        sendAjax("/testPaper/saveAutoTestPaperInfo", "POST", paramData, false, false, function(result){
+            layer.closeAll('loading')
+            if(result.code == 0){
+                layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                    parent.layui.table.reload("data-table");
+                });
+            } else {
+                layer.msg(result.msg,{icon:7, time:1500, shade: .2});
+            }
+        })
+        return false;
+    });
+})
+</script>
+</body>
+</html>

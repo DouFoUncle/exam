@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "title": "控制后台",
+    "type": 1,
+    "icon": "layui-icon layui-icon-console",
+    "openType": "_iframe",
+    "href": "/system/console"
+  },
+  {
+    "id": "student",
+    "title": "学生管理",
+    "type": 1,
+    "icon": "iconfont icon-invite",
+    "openType": "_iframe",
+    "href": "/system/student/toDataPage"
+  },
+  {
+    "id": "course",
+    "title": "课程管理",
+    "type": 1,
+    "icon": "layui-icon layui-icon-form",
+    "openType": "_iframe",
+    "href": "/system/course/toDataPage"
+  },
+  {
+    "id": "subject",
+    "title": "题库管理",
+    "type": 1,
+    "icon": "layui-icon layui-icon-form",
+    "openType": "_iframe",
+    "href": "/system/subject/toDataPage"
+  },
+  {
+    "id": "test_paper",
+    "title": "试卷管理",
+    "type": 1,
+    "icon": "layui-icon layui-icon-form",
+    "openType": "_iframe",
+    "href": "/system/testPaper/toDataPage"
+  },
+  {
+    "id": "examination_visit",
+    "title": "考试记录",
+    "type": 1,
+    "icon": "iconfont icon-order",
+    "openType": "_iframe",
+    "href": "/system/examVisit/toDataPage"
+  },
+  {
+    "id": "message",
+    "title": "留言管理",
+    "type": 1,
+    "icon": "layui-icon layui-icon-survey",
+    "openType": "_iframe",
+    "href": "/system/teacherMessage/toDataPage"
+  }
+]

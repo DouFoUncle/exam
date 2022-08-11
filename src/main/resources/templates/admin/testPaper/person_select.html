@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <link rel="stylesheet" th:href="@{/adminStatic/css/admin.css}" href="adminStatic/css/admin.css" />
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+    </style>
+</head>
+<body>
+<div  style="background-color: #FFF; padding:15px;box-sizing: border-box">
+    <!-- 树形组件 -->
+    <div id="menuTree" class="demo-tree" style="height: 370px; box-sizing: border-box;
+    overflow-y: auto;border: 1px solid #DDD; padding: 10px 0; display: none"></div>
+
+    <div id="noData" style="display: flex; flex-direction: column; justify-content: center; align-items: center;
+                            opacity: 0;">
+        <div class="layui-icon" style="font-size: 60px; color: #666; display: inline-block">&#xe627;</div>
+        <div style="display: inline-block">题库暂无数据</div>
+    </div>
+
+    <form class="layui-form" action="#">
+        <!-- 保存考试基本信息 -->
+        <input type="hidden" name="title" th:value="${obj.title}">
+        <input type="hidden" name="type" th:value="${obj.type}">
+        <input type="hidden" name="startDate" th:value="${obj.startDate}">
+        <input type="hidden" name="endDate" th:value="${obj.endDate}">
+        <input type="hidden" name="testTime" th:value="${obj.testTime}">
+        <div class="bottom">
+            <div class="button-container">
+                <button type="button" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                    <i class="layui-icon layui-icon-username"></i>
+                    提交
+                </button>
+                <button type="button" class="pear-btn pear-btn-sm" id="cancelBtn">
+                    <i class="layui-icon layui-icon-close"></i>
+                    取消
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/layer/layer.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form','jquery', 'tree'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+    let tree = layui.tree;
+
+    /**
+     * 发起请求获得树形结构的数据
+     */
+    $.getJSON(
+        "/testPaper/getTreeData?category=[[${obj.type == '0' ? '1' : '0'}]]",
+        function (res) {
+            if(res.code == "0") {
+                if(!res.data || res.data.length == 0) {
+                    $("#menuTree").hide();
+                    $("#noData").css("opacity", 1);
+                    $("#noData").show();
+                    return;
+                }
+                $("#menuTree").show();
+                $("#noData").hide();
+                let treeInit = {
+                    elem: '#menuTree'
+                    , data: res.data
+                    , showCheckbox: true
+                    , showLine: false
+                    , id: 'activityTree'
+                }
+                // 树状图
+                tree.render(treeInit);
+            } else {
+                layer.confirm(res.msg, {
+                    btn: ['确定'] //按钮
+                    , icon: 5
+                    , anim: 6
+                }, function () {
+                    window.location.reload();
+                })
+            }
+        }
+    )
+
+    // 绑定取消按钮
+    $("#cancelBtn").click(() => {
+        // 关闭当前弹窗
+        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+    })
+
+    form.on('submit(subBtn)', function(data){
+        // 获得选中的树节点
+        // (会直接返回所有的父级节点,需要判断该节点中的children中是否有东西,如果有就表示该节点下有子节点被选中)
+        var checkData = tree.getChecked('activityTree');
+        let ids = [];
+        if(checkData.length == 0) {
+            layer.msg("未选择题目！", {icon: 7, time: 1300, shade: .2});
+            return;
+        }
+        $.each(checkData, function () {
+            // 判断是否选中了子节点
+            if(this.children && this.children.length > 0) {
+                var subInfo = this.children;
+                // 选中了, 将子节点进行遍历, 将ID进行拼接
+                $.each(subInfo, function () {
+                    ids.push(this.id);
+                })
+            }
+        })
+        layer.load()
+        let paramObj = data.field;
+        paramObj.subIds = ids;
+        sendAjax("/testPaper/saveInfo", "POST", paramObj, false, true, function(result){
+            layer.closeAll('loading')
+            if(result.code == 0){
+                layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                    parent.layui.table.reload("data-table");
+                });
+            } else {
+                layer.msg(result.msg,{icon:7, time:1000, shade: .2});
+            }
+        })
+        return false;
+    });
+})
+</script>
+</body>
+</html>

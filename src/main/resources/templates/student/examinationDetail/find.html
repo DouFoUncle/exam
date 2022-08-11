@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-card-body .layui-form .layui-table-box {
+            min-height: 380px !important;
+        }
+    </style>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <input type="hidden" th:value="${obj.id}" name="testPaperId">
+            <input type="hidden" th:value="${userId}" name="userId">
+            <div class="layui-form-item">
+                <label class="layui-form-label">题目标题</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="subjectTitle" placeholder="请输入" class="layui-input">
+                </div>
+                <label class="layui-form-label">作答结果</label>
+                <div class="layui-input-inline">
+                    <select name="userSelect" class="layui-select">
+                        <option value="">请选择</option>
+                        <option value="1">正确</option>
+                        <option value="0">错误</option>
+                    </select>
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="form-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card" style="max-height: 690px; height: 530px;">
+    <div class="layui-card-body">
+        <table id="data-table" lay-filter="data-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="table-toolbar">
+    <button class="pear-btn pear-btn-warming pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        修改试题
+    </button>
+</script>
+
+<script type="text/html" id="userSelectLabel">
+    {{# if(d.userSelect == '0') {}}
+    <span class="layui-font-red">错误</span>
+    {{# } else if(d.userSelect == '1') {}}
+    <span class="layui-font-green">正确</span>
+    {{# }}}
+</script>
+
+<script type="text/html" id="userResult">
+    {{# if(!d.userResult) {}}
+    <span class="layui-font-red">未作答</span>
+    {{# } else if(d.userSelect) {}}
+    <span class="layui-font-green">{{d.userResult}}</span>
+    {{# }}}
+</script>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'drawer', 'dropdown'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        // 该模块的请求路径前缀
+        let MODULE_PATH = "/examinationDetail";
+        let tableUrl = MODULE_PATH + '/getSubjectListByPage?userId='+$("input[name='userId']").val()+'&testPaperId=' + $("input[name='testPaperId']").val();
+
+        // 创建表格中显示的列
+        let cols = [
+            [
+                {
+                    title: '试题标题',
+                    field: 'subjectTitle',
+                    align: 'center',
+                    minWidth: 150
+                },
+                {
+                    title: '作答结果',
+                    field: 'userSelect',
+                    align: 'center',
+                    minWidth: 180,
+                    templet: '#userSelectLabel'
+                },
+                {
+                    title: '学生作答',
+                    field: 'userResult',
+                    align: 'center',
+                    minWidth: 180,
+                    templet: '#userResult'
+                },
+                {
+                    title: '正确答案',
+                    field: 'finalResult',
+                    align: 'center',
+                    minWidth: 180
+                }
+            ]
+        ]
+
+        // 创建表格
+        table.render({
+            elem: '#data-table',
+            url: tableUrl,
+            page: true,
+            limit: 10,
+            cols: cols,		// 指定表格中显示的列
+            skin: 'line',
+            toolbar: false,
+            minWidth: 80,
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                title: '刷新表格',
+                icon: 'layui-icon-refresh',
+            }, 'filter']
+        });
+
+        // 监听行内操作按钮事件
+        table.on('tool(data-table)', function (obj) {
+            if (obj.event === 'remove') {
+                // 删除
+                deleteOne(obj, MODULE_PATH);
+            }
+        });
+
+        // 控制头部工具条
+        table.on('toolbar(data-table)', function (obj) {
+            if (obj.event === 'refresh') {
+                // 刷新表格数据
+                table.reload('data-table');
+            }
+        });
+
+        // 查询提交事件
+        form.on('submit(form-query)', function (data) {
+            table.reload('data-table', {
+                where: data.field
+            })
+            return false;
+        });
+    })
+</script>
+</body>
+</html>

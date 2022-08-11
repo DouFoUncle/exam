@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 195px;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="#">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">留言的老师</label>
+                    <div class="layui-input-block">
+                        <select name="userTeacherId" id="" lay-search autocomplete="off">
+                            <option value="">请选择或输入搜索</option>
+                            <option th:value="${item.id}"
+                                    th:text="${item.realName}"
+                                    th:selected="${obj.userTeacherId} == ${item.id}"
+                                    th:each="item : ${teacherList}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">留言标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" lay-verify="title" th:value="${obj.title}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">留言内容</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入" name="content" class="layui-textarea" autocomplete="off" style="min-height: 180px; resize: none">[[${obj.content}]]</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <input type="hidden" name="id" th:value="${obj.id}">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['form','jquery'],function(){
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(subBtn)', function(data){
+            //验证数据
+            let flag = isVerifyDate();
+            // 如果flag不为空就是验证不通过
+            if(flag) {
+                layer.msg(flag, {icon: 7, time: 1300, shade: .2});
+                return false;
+            }
+            let paramObj = data.field;
+            sendAjax("/studentMessage/saveOrUpdate", "POST", paramObj, false, false, function(result){
+                if(result.code == 0){
+                    layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("data-table");
+                    });
+                } else {
+                    layer.msg(result.msg,{icon:7, time:1000, shade: .2});
+                }
+            })
+            return false;
+        });
+
+        /**
+         * 验证数据方法
+         */
+        function isVerifyDate() {
+            // 获取所有数据
+            let title = $("input[name='title']").val();
+            let content = $("textarea[name='content']").val();
+            let userTeacherId = $("select[name='userTeacherId']").val();
+            // 非空验证
+            if(!title || !content || !userTeacherId) {
+                return "请认真点, 将所有必填数据填写完整! ";
+            }
+        }
+    })
+</script>
+</body>
+</html>

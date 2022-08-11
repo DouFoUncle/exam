@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="#">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所属课程</label>
+                    <div class="layui-input-block">
+                        <select name="courseId" class="layui-form-select" lay-search>
+                            <option value="">请选择或输入搜索</option>
+                            <option th:each="item : ${courseList}"
+                                    th:value="${item.id}"
+                                    th:selected="${obj.courseId} == ${item.id}"
+                                    th:text="${item.courseName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">题目标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" th:value="${obj.title}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选项1</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="optionOne" th:value="${obj.optionOne}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选项2</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="optionTwo" th:value="${obj.optionTwo}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选项3</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="optionThree" th:value="${obj.optionThree}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选项4</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="optionFour" th:value="${obj.optionFour}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">答案</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="result" th:value="${obj.result}" autocomplete="off" placeholder="输入正确的选项, 例如：1" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分值</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="score" th:value="${obj.score}" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">题目类型</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="type" value="0" title="单选题" th:checked="${obj.type eq '0'}">
+                        <input type="radio" name="type" value="1" title="多选题" th:checked="${obj.type eq '1'}">
+                        <input type="radio" name="type" value="2" title="判断题" th:checked="${obj.type eq '2'}">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">题目类别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="category" value="0" title="练习题" th:checked="${obj.category eq '0'}">
+                        <input type="radio" name="category" value="1" title="考试题" th:checked="${obj.category eq '1'}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <input type="hidden" name="id" th:value="${obj.id}">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['form','jquery'],function(){
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(subBtn)', function(data){
+            //验证数据
+            let flag = isVerifyDate();
+            // 如果flag不为空就是验证不通过
+            if(flag) {
+                layer.msg(flag, {icon: 7, time: 1300, shade: .2});
+                return false;
+            }
+            let paramObj = data.field;
+            sendAjax("/subject/saveOrUpdate", "POST", paramObj, false, false, function(result){
+                if(result.code == 0){
+                    layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("data-table");
+                    });
+                } else {
+                    layer.msg(result.msg,{icon:7, time:1000, shade: .2});
+                }
+            })
+            return false;
+        });
+
+        /**
+         * 验证数据方法
+         */
+        function isVerifyDate() {
+            // 获取所有数据
+            let courseId = $("select[name='courseId']").val();
+            let title = $("input[name='title']").val();
+            let optionOne = $("input[name='optionOne']").val();
+            let optionTwo = $("input[name='optionTwo']").val();
+            let result = $("input[name='result']").val();
+            let score = $("input[name='score']").val();
+            // 非空验证
+            if(!courseId || !title || !result || !score) {
+                return "请认真点, 将所有必填数据填写完整! ";
+            }
+            // 至少要有两个选项
+            if(!optionOne || !optionTwo) {
+                return "至少要输入两个选项！"
+            }
+        }
+    })
+</script>
+</body>
+</html>

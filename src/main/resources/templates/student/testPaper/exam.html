@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+
+        .exam_body {
+            padding: 15px;
+            position: relative;
+        }
+        .exam_body .head_info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .exam_head_title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .exam_test_info {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .subject_item {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            margin-top: 30px;
+            margin-left: 50px;
+        }
+        .bottom {
+            bottom: 0;
+            position: fixed;
+            display: flex;
+            flex-direction: row;
+        }
+        #timer {
+            margin-left: 15px;
+            color: #FF5722;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" id="form">
+    <input type="hidden" name="id" th:value="${testPaper.id}">
+    <input type="hidden" name="title" th:value="${testPaper.title}">
+    <div class="exam_body">
+        <div class="head_info">
+            <div class="exam_head_title">[[${testPaper.title}]]</div>
+            <div class="exam_test_info">
+                <div style="width: 150px">考试时间：[[${testPaper.testTime}]]分钟</div>
+                <div>总分：[[${testPaper.fullScore}]]</div>
+            </div>
+        </div>
+        <div class="subject_item" th:each="item, state : ${subjectList}">
+            <input type="hidden" th:value="${item.id}" th:name="${'startExamSubjects[' + state.index + '].subjectId'}">
+            <input type="hidden" th:value="${item.type}" th:name="${'startExamSubjects[' + state.index + '].type'}">
+            <div th:if="${item.type == '0'}">[[${state.count}]].&nbsp;(单选题)&nbsp;[[${item.title}]]</div>
+            <div th:if="${item.type == '1'}">[[${state.count}]].&nbsp;(多选题)&nbsp;[[${item.title}]]</div>
+            <div th:if="${item.type == '2'}">[[${state.count}]].&nbsp;(判断题)&nbsp;[[${item.title}]]</div>
+            <!-- 判断题目类型 -->
+            <div th:if="${item.type == '0'}">
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="1" th:title="${item.optionOne}" autocomplete="off">
+                </div>
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="2" th:title="${item.optionTwo}" autocomplete="off">
+                </div>
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="3" th:title="${item.optionThree}" autocomplete="off">
+                </div>
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="4" th:title="${item.optionFour}" autocomplete="off">
+                </div>
+            </div>
+            <div th:if="${item.type == '1'}">
+                <div style="margin-top: 8px">
+                    <input type="checkbox" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           lay-skin="primary" th:title="${item.optionOne}" value="1" autocomplete="off">
+                </div>
+                <div style="margin-top: 8px">
+                    <input type="checkbox" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           lay-skin="primary" th:title="${item.optionTwo}" value="2" autocomplete="off">
+                </div>
+                <div style="margin-top: 8px">
+                    <input type="checkbox" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           lay-skin="primary" th:title="${item.optionThree}" value="3" autocomplete="off">
+                </div>
+                <div style="margin-top: 8px">
+                    <input type="checkbox" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           lay-skin="primary" th:title="${item.optionFour}" value="4" autocomplete="off">
+                </div>
+            </div>
+            <div th:if="${item.type == '2'}">
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="1" th:title="${item.optionOne}" autocomplete="off">
+                </div>
+                <div>
+                    <input type="radio" th:name="${'startExamSubjects[' + state.index + '].result'}"
+                           value="2" th:title="${item.optionTwo}" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div style="height: 50px; line-height: 50px; box-sizing: border-box">
+            <div class="bottom">
+                <div id="timer">
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn" id="subBtn">
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+                    <button type="button" class="pear-btn pear-btn-warming pear-btn-sm" lay-submit="" id="exitBtn">
+                        <i class="layui-icon layui-icon-logout"></i>
+                        退出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/layer/layer.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form', 'jquery', 'laydate', 'layer'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+    let laydate = layui.laydate
+    let layer = layui.layer
+    // 考试时间, 转换为秒
+    var maxtime = parseInt("[[${testPaper.testTime}]]") * 60  //以90分钟为例
+    // 控制倒计时
+    let timeInter;
+    let msgFlag = true;
+
+    time();
+
+    timeInter = setInterval(function() {
+        time()
+    }, 1000);
+
+    function time(){   //定义函数 此函数名必须与触发事件的函数名一致
+        if(maxtime >= 0){
+            minutes = Math.floor(maxtime / 60); //计算出分钟
+            seconds = Math.floor(maxtime % 60);  //计算出秒
+            msg = "距离考试结束还有"+minutes+"分"+seconds+"秒";
+            $("#timer").text(msg);
+            --maxtime;
+        }
+        else{
+            clearInterval(timeInter);
+            layer.confirm('考试时间到！', {
+                btn: ['开始'] //按钮
+                , icon: 7
+            }, function(){
+                // 交卷
+                msgFlag = false;
+            });
+        }
+    }
+
+    $("#exitBtn").click(function() {
+        layer.confirm('退出后将直接交卷！确定操作吗？', {
+            btn: ['确定', '取消'] //按钮
+            , icon: 7
+        }, function(index){
+            layer.close(index)
+            msgFlag = false;
+            $("#subBtn").click()
+        });
+    })
+
+    form.on('submit(subBtn)', function(data){
+        if(msgFlag) {
+            layer.confirm('确定提交考试吗？', {
+                btn: ['确定', '取消'] //按钮
+                , icon: 7
+            }, function(index){
+                layer.close(index)
+                // 交卷
+                submit(data);
+            });
+        } else {
+            submit(data);
+        }
+        return false;
+    });
+
+    function submit(data) {
+        let obj = data.field
+        // 处理多选题的选项
+        for (let key in obj) {
+            if(key.indexOf("type") != -1) {
+                if(obj[key] == '1') {
+                    let newKey = key.replace("type", "result");
+                    // 获取该name的所有选项
+                    let options = $("input[name='"+newKey+"']:checked");
+                    if(options && options.length > 0) {
+                        let ids = ''
+                        for (let i = 0; i < options.length; i++) {
+                            ids += $(options[i]).val() + ","
+                        }
+                        obj[newKey] = ids.substring(0, ids.length - 1)
+                        console.log(obj[newKey])
+                    }
+                }
+            }
+        }
+        layer.load()
+        sendAjax("/studentTestPaper/submitExam", "POST", obj, false, false, function(result){
+            layer.closeAll('loading')
+            if(result.code == 0){
+                layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                    parent.layui.table.reload("data-table");
+                });
+            } else {
+                layer.msg(result.msg,{icon:7, time:1500, shade: .2});
+            }
+        })
+        return false;
+    }
+})
+</script>
+</body>
+</html>

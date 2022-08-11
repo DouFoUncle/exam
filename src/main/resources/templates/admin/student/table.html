@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+    </style>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">学生名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="realName" placeholder="请输入" class="layui-input">
+                </div>
+                <label class="layui-form-label">学号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="studentNo" placeholder="请输入" class="layui-input">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="form-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card" style="max-height: 690px; min-height: 690px">
+    <div class="layui-card-body">
+        <table id="data-table" lay-filter="data-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="table-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="table-bar">
+    <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="edit" onmouseenter="showTips(this, '修改')" onmouseleave="closeTips()">
+        <i class="layui-icon layui-icon-edit"></i></button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove" onmouseenter="showTips(this, '删除')" onmouseleave="closeTips()">
+        <i class="layui-icon layui-icon-delete"></i></button>
+</script>
+
+<script type="text/html" id="sexLabel">
+    {{# if(d.sex == '1') {}}
+        <span>男</span>
+    {{# } else if(d.sex == '0') {}}
+        <span>女</span>
+    {{# }}}
+</script>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'drawer', 'dropdown'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        // 该模块的请求路径前缀
+        let MODULE_PATH = "/adminStudent";
+        let tableUrl = MODULE_PATH + '/getListByPage';
+
+        // 创建表格中显示的列
+        let cols = [
+            [
+                {
+                    type: 'checkbox'
+                },
+                {
+                    title: '学号',
+                    field: 'studentNo',
+                    align: 'center',
+                    minWidth: 180
+                },
+                {
+                    title: '学生姓名',
+                    field: 'realName',
+                    align: 'center',
+                    minWidth: 180
+                },
+                {
+                    title: '联系电话',
+                    field: 'phone',
+                    align: 'center',
+                    minWidth: 180
+                },
+                {
+                    title: '所属专业',
+                    field: 'major',
+                    align: 'center',
+                    minWidth: 150
+                },
+                {
+                    title: '所属班级',
+                    field: 'classes',
+                    align: 'center',
+                    minWidth: 140
+                },
+                {
+                    title: '性别',
+                    field: 'sex',
+                    align: 'center',
+                    minWidth: 140,
+                    templet: '#sexLabel'
+                },
+                {
+                    title: '身份证号',
+                    field: 'idCardNum',
+                    align: 'center',
+                    minWidth: 180
+                },
+                {
+                    title: '操作',
+                    toolbar: '#table-bar',
+                    align: 'left',
+                    minWidth: 160,
+                    fixed: 'right'
+                }
+            ]
+        ]
+
+        // 创建表格
+        table.render({
+            elem: '#data-table',
+            url: tableUrl,
+            page: true,
+            limit: 10,
+            cols: cols,		// 指定表格中显示的列
+            skin: 'line',
+            toolbar: '#table-toolbar',
+            minWidth: 80,
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                title: '刷新表格',
+                icon: 'layui-icon-refresh',
+            }, 'filter']
+        });
+
+        // 监听行内操作按钮事件
+        table.on('tool(data-table)', function (obj) {
+            if (obj.event === 'remove') {
+                // 删除
+                deleteOne(obj, MODULE_PATH);
+            } else if (obj.event === 'edit') {
+                // 修改弹窗
+                toWindow('/system' + MODULE_PATH + '/toEditPage?id=' + obj.data.id, "修改学生", "400px", "500px", true, null);
+            }
+        });
+
+        // 控制头部工具条
+        table.on('toolbar(data-table)', function (obj) {
+            if (obj.event === 'add') {
+                // 打开新增弹窗
+                toWindow('/system' + MODULE_PATH + '/toAddPage', "新增学生", "400px", "600px", true, null);
+            } else if (obj.event === 'batchRemove') {
+                // 批量删除
+                deleteAll(table, obj, MODULE_PATH)
+            } else if (obj.event === 'refresh') {
+                // 刷新表格数据
+                table.reload('data-table');
+            }
+        });
+
+        // 查询提交事件
+        form.on('submit(form-query)', function (data) {
+            table.reload('data-table', {
+                where: data.field
+            })
+            return false;
+        });
+    })
+</script>
+</body>
+</html>

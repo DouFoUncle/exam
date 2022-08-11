@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.commons.mapper.ExaminationDetailMapper">
+  <resultMap id="BaseResultMap" type="com.project.commons.model.ExaminationDetail">
+    <!--@mbg.generated-->
+    <!--@Table examination_detail-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="test_paper_id" jdbcType="INTEGER" property="testPaperId" />
+    <result column="exam_title" jdbcType="VARCHAR" property="examTitle" />
+    <result column="subject_id" jdbcType="INTEGER" property="subjectId" />
+    <result column="user_select" jdbcType="VARCHAR" property="userSelect" />
+    <result column="user_result" jdbcType="VARCHAR" property="userResult" />
+    <result column="subject_title" jdbcType="VARCHAR" property="subjectTitle" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="finalResult" jdbcType="VARCHAR" property="finalResult" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, test_paper_id, exam_title, subject_id, user_select, subject_title, create_date
+  </sql>
+
+  <select id="getSubjectListByPage" resultMap="BaseResultMap">
+    SELECT ed.id, ed.user_id, test_paper_id, exam_title, subject_id, user_select, subject_title, ed.create_date, user_result
+           , s.id sId, course_id, s.title, option_one, option_two, option_three, option_four, result finalResult
+           , s.type, category, score, del_flag
+           , tp.id, tp.title, tp.type, full_score, tp.user_id, subject_count, tp.create_date, publish_status
+           , test_time, start_date, end_date
+    FROM examination_detail ed
+    INNER JOIN subject s on ed.subject_id = s.id
+    INNER JOIN test_paper tp on ed.test_paper_id = tp.id
+    WHERE tp.id = #{item.testPaperId}
+          <if test="item.subjectTitle != null and item.subjectTitle != ''">
+            AND ed.subject_title LIKE CONCAT('%', #{item.subjectTitle}, '%')
+          </if>
+          <if test="item.userSelect != null and item.userSelect != ''">
+            AND ed.user_select = #{item.userSelect}
+          </if>
+          <if test="item.userId != null">
+            AND ed.user_id = #{item.userId}
+          </if>
+    ORDER BY ed.create_date DESC
+  </select>
+</mapper>

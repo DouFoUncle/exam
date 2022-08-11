@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+    </style>
+</head>
+<body>
+<div style="padding: 15px;height: 210px;box-sizing: border-box">
+    <form id="form" action="../video/importVideo.do" method="post" enctype="multipart/form-data">
+        <div class="layui-upload-drag" id="uploadXls" style="width: 350px;box-sizing: border-box">
+            <div>
+                <i class="layui-icon"></i>
+                <p>点击上传，或将文件拖拽到此处</p>
+                <p style="color: red">仅支持表格文件: xls/xlsx</p>
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <a href="javascript:;" id="downloadBtn"
+               class="layui-btn layui-btn-normal" style="display: block">导入模板下载</a>
+        </div>
+    </form>
+</div>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['upload'], function () {
+        var upload = layui.upload,
+            layer = layui.layer;
+
+        $("#downloadBtn").click(function () {
+            let load = layer.load(1, {
+                shade: .3
+            });
+            window.location.href = "/subject/downLoadFile";
+            setTimeout(function() {
+                layer.close(load);
+            }, 1000)
+        })
+
+        // 文件上传
+        upload.render({
+            elem: '#uploadXls'
+            , url: '/subject/importExcelData' //文件上传接口
+            , accept: 'file'
+            , exts: 'xls|xlsx'
+            , done: function (res) {
+                if(res.code == 1){
+                    layer.msg(res.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("data-table");
+                    });
+                } else {
+                    layer.msg(res.msg,{icon:7, time:1000, shade: .2});
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="#">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">试卷标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title"  autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">考试时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="startDate" id="startDate" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">截止时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="endDate" id="endDate" autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">考试倒计时</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="testTime"  autocomplete="off" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">试卷类型</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="type" value="0" title="考试卷" checked="">
+                        <input type="radio" name="type" value="1" title="练习卷">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="button" class="pear-btn pear-btn-primary pear-btn-sm" id="personBtn">
+                <i class="layui-icon layui-icon-username"></i>
+                人工组卷
+            </button>
+            <button type="button" class="pear-btn pear-btn-sm pear-btn-warming" id="autoBtn">
+                <i class="layui-icon layui-icon-light"></i>
+                自动组卷
+            </button>
+        </div>
+    </div>
+</form>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/layer/layer.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form', 'jquery', 'laydate', 'layer'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+    let laydate = layui.laydate
+    let layer = layui.layer
+
+    //执行一个laydate实例
+    laydate.render({
+        elem: '#startDate' //指定元素
+        , type: 'datetime'
+        , min: '[[${minDate}]]'
+    });
+
+    //执行一个laydate实例
+    laydate.render({
+        elem: '#endDate' //指定元素
+        , type: 'datetime'
+        , min: '[[${minDate}]]'
+    });
+
+    /**
+     * 人工组卷
+     */
+    $("#personBtn").click(function(){
+        //验证数据
+        let flag = isVerifyDate();
+        // 如果flag不为空就是验证不通过
+        if(flag) {
+            layer.msg(flag, {icon: 7, time: 1300, shade: .2});
+            return false;
+        }
+        let title = $("input[name='title']").val();
+        let startDate = $("input[name='startDate']").val();
+        let endDate = $("input[name='endDate']").val();
+        let testTime = $("input[name='testTime']").val();
+        let type = $("input[name='type']:checked").val();
+        // 跳转到组卷页面
+        window.location.href = `/system/testPaper/toTestAddPage?selectType=0&title=${title}&startDate=${startDate}&endDate=${endDate}&testTime=${testTime}&type=${type}`
+        return false;
+    });
+
+    /**
+     * 自动组卷
+     */
+    $("#autoBtn").click(function(){
+        //验证数据
+        let flag = isVerifyDate();
+        // 如果flag不为空就是验证不通过
+        if(flag) {
+            layer.msg(flag, {icon: 7, time: 1300, shade: .2});
+            return false;
+        }
+        let title = $("input[name='title']").val();
+        let startDate = $("input[name='startDate']").val();
+        let endDate = $("input[name='endDate']").val();
+        let testTime = $("input[name='testTime']").val();
+        let type = $("input[name='type']:checked").val();
+        // 跳转到组卷页面
+        window.location.href = `/system/testPaper/toTestAddPage?selectType=1&title=${title}&startDate=${startDate}&endDate=${endDate}&testTime=${testTime}&type=${type}`
+        return false;
+    });
+
+    /**
+     * 验证数据方法
+     */
+    function isVerifyDate() {
+        // 获取所有数据
+        let title = $("input[name='title']").val();
+        let startDate = $("input[name='startDate']").val();
+        let endDate = $("input[name='endDate']").val();
+        let testTime = $("input[name='testTime']").val();
+        // 非空验证
+        if(!title || !startDate || !testTime || !endDate) {
+            return "请认真点, 将所有必填数据填写完整! ";
+        }
+    }
+})
+</script>
+</body>
+</html>

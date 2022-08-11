@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 195px;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="#">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">新密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="password" lay-verify="title" autocomplete="new-password" placeholder="请输入登录密码" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="realName" lay-verify="title" autocomplete="off"
+                               th:value="${obj.realName}" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所属专业</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="major" lay-verify="title" autocomplete="off"
+                               th:value="${obj.major}" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所属班级</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="classes" lay-verify="title" autocomplete="off"
+                               th:value="${obj.classes}" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" lay-verify="title" autocomplete="off"
+                               th:value="${obj.phone}" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">身份证号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="idCardNum" lay-verify="title" autocomplete="off"
+                               th:value="${obj.idCardNum}" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <input type="hidden" name="id" th:value="${obj.id}">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['form','jquery'],function(){
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(subBtn)', function(data){
+            //验证数据
+            let flag = isVerifyDate();
+            // 如果flag不为空就是验证不通过
+            if(flag) {
+                layer.msg(flag, {icon: 7, time: 1300, shade: .2});
+                return false;
+            }
+            let paramObj = data.field;
+            sendAjax("/adminTeacher/saveOrUpdate", "POST", paramObj, false, false, function(result){
+                if(result.code == 0){
+                    layer.msg(result.msg, {icon: 1, time: 1000, shade: .2}, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("data-table");
+                    });
+                } else {
+                    layer.msg(result.msg,{icon:7, time:1000, shade: .2});
+                }
+            })
+            return false;
+        });
+
+        /**
+         * 验证数据方法
+         */
+        function isVerifyDate() {
+            // 获取所有数据
+            let realName = $("input[name='realName']").val();
+            let phone = $("input[name='phone']").val();
+            let idCardNum = $("input[name='idCardNum']").val();
+            let major = $("input[name='major']").val();
+            let classes = $("input[name='classes']").val();
+            // 非空验证
+            if(!realName || !idCardNum || !major || !classes) {
+                return "请认真点, 将所有必填数据填写完整! ";
+            }
+            // 判断手机号
+            if(checkPhone(phone)) {
+                return checkPhone(phone)
+            }
+        }
+    })
+</script>
+</body>
+</html>

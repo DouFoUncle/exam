@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+    </style>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">试卷标题</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" placeholder="请输入" class="layui-input">
+                </div>
+                <label class="layui-form-label">试卷类型</label>
+                <div class="layui-input-inline">
+                    <select name="type" class="layui-select">
+                        <option value="">请选择</option>
+                        <option value="0">考试卷</option>
+                        <option value="1">练习卷</option>
+                    </select>
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="form-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card" style="max-height: 680px; min-height: 680px; height: 680px;">
+    <div class="layui-card-body">
+        <table id="data-table" lay-filter="data-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="table-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        在线练习
+    </button>
+</script>
+
+<script type="text/html" id="table-bar">
+    {{# if(d.beginStatus == '1') {}}
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="start" onmouseenter="showTips(this, '开始考试')" onmouseleave="closeTips()">
+        <i class="layui-icon layui-icon-release"></i></button>
+    {{# }}}
+</script>
+
+<script type="text/html" id="typeLabel">
+    {{# if(d.type == '0') {}}
+        <span>考试卷</span>
+    {{# } else if(d.type == '1') {}}
+        <span>练习卷</span>
+    {{# }}}
+</script>
+
+<script type="text/html" id="beginStatusLabel">
+    {{# if(d.beginStatus == '0') {}}
+        <span class="layui-font-orange">未开始</span>
+    {{# } else if(d.beginStatus == '1') {}}
+        <span class="layui-font-green">进行中</span>
+    {{# } else if(d.beginStatus == '2') {}}
+        <span class="layui-font-red">已截止</span>
+    {{# }}}
+</script>
+
+<script type="text/html" id="publishStatus">
+    {{# if(d.publishStatus == '0') {}}
+        <span class="layui-font-red">未发布</span>
+    {{# } else if(d.publishStatus == '1') {}}
+        <span class="layui-font-green">已发布</span>
+    {{# }}}
+</script>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'drawer', 'dropdown'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        // 该模块的请求路径前缀
+        let MODULE_PATH = "/studentTestPaper";
+        let tableUrl = MODULE_PATH + '/getListByPage';
+
+        // 创建表格中显示的列
+        let cols = [
+            [
+                {
+                    title: '试卷标题',
+                    field: 'title',
+                    align: 'center',
+                    minWidth: 180
+                },
+                {
+                    title: '试卷类型',
+                    field: 'type',
+                    align: 'center',
+                    minWidth: 120,
+                    templet: '#typeLabel'
+                },
+                {
+                    title: '试卷总分',
+                    field: 'fullScore',
+                    align: 'center',
+                    minWidth: 120
+                },
+                {
+                    title: '题目数量',
+                    field: 'subjectCount',
+                    align: 'center',
+                    minWidth: 120
+                },
+                {
+                    title: '发布状态',
+                    field: 'publishStatus',
+                    align: 'center',
+                    minWidth: 120,
+                    templet: '#publishStatus'
+                },
+                {
+                    title: '状态',
+                    field: 'beginStatus',
+                    align: 'center',
+                    minWidth: 120,
+                    templet: '#beginStatusLabel'
+                },
+                {
+                    title: '开始时间',
+                    field: 'startDate',
+                    align: 'center',
+                    minWidth: 170
+                },
+                {
+                    title: '截止时间',
+                    field: 'endDate',
+                    align: 'center',
+                    minWidth: 170
+                },
+                {
+                    title: '创建时间',
+                    field: 'createDate',
+                    align: 'center',
+                    minWidth: 170
+                },
+                {
+                    title: '操作',
+                    toolbar: '#table-bar',
+                    align: 'left',
+                    minWidth: 130,
+                    fixed: 'right'
+                }
+            ]
+        ]
+
+        // 创建表格
+        table.render({
+            elem: '#data-table',
+            url: tableUrl,
+            page: true,
+            limit: 10,
+            cols: cols,		// 指定表格中显示的列
+            skin: 'line',
+            toolbar: '#table-toolbar',
+            minWidth: 80,
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                title: '刷新表格',
+                icon: 'layui-icon-refresh',
+            }, 'filter']
+        });
+
+        // 监听行内操作按钮事件
+        table.on('tool(data-table)', function (obj) {
+            // 参加考试
+            if (obj.event === 'start') {
+                // 开始考试
+                layer.confirm('开始考试吗？注意开始后不可停止！', {
+                    btn: ['开始','取消'] //按钮
+                    , icon: 7
+                }, function(){
+                    layer.closeAll()
+                    // 判断是否已经截止参加,
+                    sendAjax(`/studentTestPaper/examIsOver?id=` + obj.data.id, "GET", null, false, false, (res) => {
+                        if(res.code == 0) {
+                            // 打开考试弹窗
+                            toWindow('/system' + MODULE_PATH + '/toStartExam?testPaperId=' + obj.data.id, "在线考试", "1100px", "720px", false, null, false);
+                        } else {
+                            layer.msg(res.msg, {icon: 7, time: 1300, shade: .2, end: () => {
+                                    // 刷新表格数据
+                                    table.reload('data-table');
+                                }}
+                            )
+                        }
+                    })
+                });
+            }
+        });
+
+        // 控制头部工具条
+        table.on('toolbar(data-table)', function (obj) {
+            if (obj.event === 'add') {
+                // 打开新增弹窗
+                toWindow('/system' + MODULE_PATH + '/toTestAddPage', "在线练题", "1100px", "720px", false, null, false);
+            } else if (obj.event === 'refresh') {
+                // 刷新表格数据
+                table.reload('data-table');
+            }
+        });
+
+        // 查询提交事件
+        form.on('submit(form-query)', function (data) {
+            table.reload('data-table', {
+                where: data.field
+            })
+            return false;
+        });
+    })
+</script>
+</body>
+</html>

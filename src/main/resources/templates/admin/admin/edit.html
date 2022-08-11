@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 195px;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="#">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="userName" lay-verify="title" autocomplete="off" placeholder="请输入登录用户名" class="layui-input" th:value="${obj.userName}">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">新密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="password" lay-verify="title" autocomplete="new-password" placeholder="请输入登录密码" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">重复密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="passwordRe" lay-verify="title" autocomplete="new-password" placeholder="请输入登录密码" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickName" lay-verify="title" autocomplete="off" placeholder="请输入用户昵称" class="layui-input" th:value="${obj.nickName}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <input type="hidden" th:value="${obj.id}" name="id">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form','jquery'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+
+    form.on('submit(subBtn)', function(data){
+        //验证数据
+        let flag = isVerifyDate();
+        // 如果flag不为空就是验证不通过
+        if(flag) {
+            layer.msg(flag);
+            return false;
+        }
+        let paramObj = JSON.parse(data.field);
+        sendAjax("/admin/admin/updateInfo", "PUT", paramObj, true, true, function(result){
+            if(result.code == 1){
+                layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                    parent.layui.table.reload("data-table");
+                });
+            }else{
+                layer.msg(result.msg,{icon:2,time:1000});
+            }
+        })
+        return false;
+    });
+
+    /**
+     * 验证数据方法
+     */
+    function isVerifyDate() {
+        // 获取所有数据
+        let nickName = $("input[name='nickName']").val();
+        let userName = $("input[name='userName']").val();
+        let password = $("input[name='password']").val();
+        let passwordRe = $("input[name='passwordRe']").val();
+        // 非空验证
+        if(!nickName || !userName || !password) {
+            return "请认真点, 将所有必填数据填写完整! ";
+        }
+        // 两次密码是否一致
+        if(password != passwordRe) {
+            return "两次输入的密码不一致！"
+        }
+    }
+})
+</script>
+</body>
+</html>

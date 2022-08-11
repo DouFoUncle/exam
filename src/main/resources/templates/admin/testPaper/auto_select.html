@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        .layui-form-select dl {
+            max-height: 175px;
+        }
+        .layui-form-checkbox {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div  style="background-color: #FFF; padding:15px;box-sizing: border-box">
+    <div style="height: 370px; overflow-y: auto; border: 1px solid #DDD; padding: 0 10px; box-sizing: border-box">
+        <form action="javascript:;" class="layui-form">
+            <input type="checkbox" name="courseId"
+                   th:each="item : ${courseList}"
+                   th:value="${item.id}" style="margin: 8px 0"
+                   th:title="${item.courseName}" lay-skin="primary">
+            <div class="bottom">
+                <!-- 保存考试基本信息 -->
+                <input type="hidden" name="title" th:value="${obj.title}">
+                <input type="hidden" name="type" th:value="${obj.type}">
+                <input type="hidden" name="startDate" th:value="${obj.startDate}">
+                <input type="hidden" name="endDate" th:value="${obj.endDate}">
+                <input type="hidden" name="testTime" th:value="${obj.testTime}">
+                <div class="button-container">
+                    <button type="button" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="subBtn">
+                        <i class="layui-icon layui-icon-right"></i>
+                        下一步
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+layui.use(['form','jquery', 'tree', 'layer'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+    let tree = layui.tree;
+    let layer = layui.layer;
+
+    form.on('submit(subBtn)', function(data){
+        let courseIdDom = $("input[name='courseId']:checked")
+        if(!courseIdDom || courseIdDom.length == 0) {
+            layer.msg("请选择要生成的课程！", {icon: 7, time: 1300, shade: .2});
+            return;
+        }
+        let courseIds = ''
+        for (let i = 0; i < courseIdDom.length; i++) {
+            courseIds += $(courseIdDom[i]).val() + ","
+        }
+        courseIds = courseIds.substring(0, courseIds.length - 1)
+        let title = $("input[name='title']").val();
+        let startDate = $("input[name='startDate']").val();
+        let endDate = $("input[name='endDate']").val();
+        let testTime = $("input[name='testTime']").val();
+        let type = $("input[name='type']").val();
+        // 下一步跳转到输入生成信息页面
+        window.location.href = `/system/testPaper/toAutoCreatePage?title=${title}&testTime=${testTime}&type=${type}&startDate=${startDate}&endDate=${endDate}&courseIds=${courseIds}`
+        return false;
+    });
+})
+</script>
+</body>
+</html>

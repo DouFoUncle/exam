@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "控制后台",
+    "type": 1,
+    "icon": "layui-icon layui-icon-console",
+    "openType": "_iframe",
+    "href": "/system/console"
+  },
+  {
+    "id": "test_paper",
+    "title": "考试中心",
+    "type": 1,
+    "icon": "iconfont icon-invite",
+    "openType": "_iframe",
+    "href": "/system/studentTestPaper/toDataPage"
+  },
+  {
+    "id": "examination_visit",
+    "title": "考试记录",
+    "type": 1,
+    "icon": "layui-icon layui-icon-form",
+    "openType": "_iframe",
+    "href": "/system/examinationVisit/toDataPage"
+  },
+  {
+    "id": "examination_detail",
+    "title": "答题记录",
+    "type": 1,
+    "icon": "layui-icon layui-icon-read",
+    "openType": "_iframe",
+    "href": "/system/examinationDetail/toDataPage"
+  },
+  {
+    "id": "message",
+    "title": "我要留言",
+    "type": 1,
+    "icon": "layui-icon layui-icon-survey",
+    "openType": "_iframe",
+    "href": "/system/studentMessage/toDataPage"
+  }
+]

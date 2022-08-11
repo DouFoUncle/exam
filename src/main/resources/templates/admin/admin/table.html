@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../../component/pear/css/pear.css" th:href="@{/component/pear/css/pear.css}"/>
+    <style>
+        /*.layui-card-body .layui-form .layui-table-box {*/
+        /*    min-height: 690px !important;*/
+        /*}*/
+    </style>
+</head>
+<body class="pear-container">
+<div class="layui-card" style="max-height: 800px; min-height: 800px">
+    <div class="layui-card-body">
+        <table id="data-table" lay-filter="data-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="table-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script src="component/jquery/jquery.min.js" th:src="@{/component/jquery/jquery.min.js}"></script>
+<script  th:src="@{/component/layui/layui.js}" src="../../component/layui/layui.js"></script>
+<script  th:src="@{/component/pear/pear.js}" src="../../component/pear/pear.js"></script>
+<script  th:src="@{/util/util.js}" src="../../util/util.js"></script>
+<script  th:src="@{/util/request.js}" src="../../util/request.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'drawer', 'dropdown'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        // 该模块的请求路径前缀
+        let MODULE_PATH = "/admin";
+        let tableUrl = MODULE_PATH + '/getListByPage';
+
+        // 创建表格中显示的列
+        let cols = [
+            [
+                {
+                    type: 'checkbox'
+                },
+                {
+                    title: '用户名',
+                    field: 'userName',
+                    align: 'center',
+                    minWidth: 160
+                },
+                {
+                    title: '昵称',
+                    field: 'realName',
+                    align: 'center',
+                    minWidth: 180
+                }
+            ]
+        ]
+
+        // 创建表格
+        table.render({
+            elem: '#data-table',
+            url: tableUrl,
+            page: true,
+            limit: 10,
+            cols: cols,		// 指定表格中显示的列
+            skin: 'line',
+            toolbar: '#table-toolbar',
+            minWidth: 80,
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                title: '刷新表格',
+                icon: 'layui-icon-refresh',
+            }, 'filter']
+        });
+
+        // 控制头部工具条
+        table.on('toolbar(data-table)', function (obj) {
+            if (obj.event === 'add') {
+                // 打开新增弹窗
+                toWindow('/system' + MODULE_PATH + '/toAddPage', "新增管理员", "400px", "500px", true, null);
+            } else if (obj.event === 'batchRemove') {
+                // 批量删除
+                deleteAll(table, obj, MODULE_PATH)
+            } else if (obj.event === 'refresh') {
+                // 刷新表格数据
+                table.reload('data-table');
+            }
+        });
+
+        // 查询提交事件
+        form.on('submit(form-query)', function (data) {
+            table.reload('data-table', {
+                where: data.field
+            })
+            return false;
+        });
+    })
+</script>
+</body>
+</html>
