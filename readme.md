@@ -29,6 +29,9 @@ SpringBoot + MyBatisPlus + Thymeleaf+ Layui + PearAdmin + jQuery + JavaScript + 
 #### 需要加Q：943701114，可供学生毕设参考使用，再次强调，非免费开源，非诚勿扰
 
 
+#### 项目视频地址
+https://www.bilibili.com/video/BV13T4y1B7hy?spm_id_from=333.999.0.0&vd_source=eaad2d91b9e5f255962e7c180185d7d9
+
 
 #### 项目截图
 
