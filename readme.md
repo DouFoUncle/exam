@@ -39,18 +39,18 @@ https://www.bilibili.com/video/BV13T4y1B7hy?spm_id_from=333.999.0.0&vd_source=ea
 
 ##### 管理员端截图
 
-| <img src="img/admin_1.png" style="zoom:33%;" /> | <img src="img/admin_2.png" style="zoom:33%;" /> |
-| ----------------------------------------------- | ----------------------------------------------- |
-| <img src="img/admin_3.png" style="zoom:33%;" /> | <img src="img/admin_4.png" style="zoom:33%;" /> |
-| <img src="img/admin_5.png" style="zoom:33%;" /> | <img src="img/admin_6.png" style="zoom:33%;" /> |
+| ![](https://s1.ax1x.com/2022/10/24/x2g5JU.png) | ![](https://s1.ax1x.com/2022/10/24/x2gIWF.png) |
+| ---------------------------------------------- | ---------------------------------------------- |
+| ![](https://s1.ax1x.com/2022/10/24/x2g7QJ.png) | ![](https://s1.ax1x.com/2022/10/24/x2goz4.png) |
+| ![](https://s1.ax1x.com/2022/10/24/x2g4iT.png) | ![](https://s1.ax1x.com/2022/10/24/x2gHy9.png) |
 
 
 
 ##### 学生端截图
 
-| <img src="img/admin_7.png" style="zoom:33%;" /> | <img src="img/admin_8.png" style="zoom:33%;" />  |
-| ----------------------------------------------- | ------------------------------------------------ |
-| <img src="img/admin_9.png" style="zoom:33%;" /> | <img src="img/admin_10.png" style="zoom:33%;" /> |
+| ![](https://s1.ax1x.com/2022/10/24/x2gbLR.png) | ![](https://s1.ax1x.com/2022/10/24/x2gOdx.png) |
+| ---------------------------------------------- | ---------------------------------------------- |
+| ![](https://s1.ax1x.com/2022/10/24/x2gLe1.png) | ![](https://s1.ax1x.com/2022/10/24/x2gXo6.png) |
 
 
 
